@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 1 Q2 - PlayerAnalyzer</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 1 &middot; Question 2</p><h1>PlayerAnalyzer</h1>
+<h2>Question</h2><div class="q"><p>A game stores each player's tag and score. Two players form a team when the 3-digit number in their tags is the same. A tag has the form <code>NAME-NUMBER</code> (e.g. PRO-007): uppercase letters, then exactly 3 digits.</p>
+<p>Design a class <b>PlayerAnalyzer</b> to accept N players (5 &le; N &le; 15), otherwise display INVALID INPUT.</p>
+<ol type="a"><li>Display "Valid Tag" or "Invalid Tag" for each tag.</li>
+<li>Find teams having <b>exactly two</b> valid players and display them with their combined score. If none, display NO COMPLETE TEAMS FOUND.</li>
+<li>Display the player(s) with the highest score among valid tags. If no valid tags, display NO VALID TAGS FOUND.</li></ol>
+<p><b>Example 1:</b> N=5, tags PRO-117, ACE-112, MAX-117, ZEN-115, BAD-12; scores 850, 720, 910, 800, 950 &rarr; BAD-12 invalid; TEAMS: PRO-117, MAX-117; Combined Score 1760; TOP SCORER: MAX-117 - 910.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept <code>n</code>. If <code>n &lt; 5</code> or <code>n &gt; 15</code>, print INVALID INPUT and stop.</li><li>Accept <code>n</code> tags and <code>n</code> scores.</li><li>For each tag, check: exactly one '-', at least one letter before it and all of them uppercase, exactly 3 digits after it. Store the result in <code>ok[i]</code> and print Valid / Invalid Tag.</li><li>For every valid tag <code>i</code> not yet processed, count the valid tags <code>j &gt; i</code> having the same 3-digit number (mark them done).</li><li>If the count is exactly 2, print the two tags and the sum of their scores. If no team was printed, print NO COMPLETE TEAMS FOUND.</li><li>If there is no valid tag, print NO VALID TAGS FOUND and stop.</li><li>Find the maximum score <code>max</code> among valid tags; print every valid tag whose score equals <code>max</code>.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>n</code></td><td>int</td><td>Number of players</td></tr><tr><td><code>tag[]</code></td><td>String</td><td>Tags of the players</td></tr><tr><td><code>score[]</code></td><td>int</td><td>Scores of the players</td></tr><tr><td><code>ok[]</code></td><td>boolean</td><td>true if the tag at that index is valid</td></tr><tr><td><code>done[]</code></td><td>boolean</td><td>true if the player is already placed in a group</td></tr><tr><td><code>found</code></td><td>boolean</td><td>true if at least one complete team exists</td></tr><tr><td><code>validCount</code></td><td>int</td><td>Number of valid tags</td></tr><tr><td><code>cnt</code></td><td>int</td><td>Number of players sharing the same number</td></tr><tr><td><code>mate</code></td><td>int</td><td>Index of the second player of a team</td></tr><tr><td><code>max</code></td><td>int</td><td>Highest score among valid tags</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class PlayerAnalyzer {
+    int n;
+    String tag[];
+    int score[];
+    boolean ok[];                              // ok[i] = tag i is valid
+
+    void accept() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;N = &quot;);
+        n = sc.nextInt();
+        if (n &lt; 5 || n &gt; 15) {                 // range check
+            System.out.println(&quot;INVALID INPUT&quot;);
+            System.exit(0);
+        }
+        tag = new String[n];
+        score = new int[n];
+        ok = new boolean[n];
+        System.out.println(&quot;Enter &quot; + n + &quot; tags:&quot;);
+        for (int i = 0; i &lt; n; i++) tag[i] = sc.next();
+        System.out.println(&quot;Enter &quot; + n + &quot; scores:&quot;);
+        for (int i = 0; i &lt; n; i++) score[i] = sc.nextInt();
+    }
+
+    // format NAME-NUMBER : uppercase letters, &#x27;-&#x27;, exactly 3 digits
+    boolean isValid(String t) {
+        int p = t.indexOf(&#x27;-&#x27;);
+        if (p &lt; 1 || p != t.lastIndexOf(&#x27;-&#x27;)) return false;
+        for (int i = 0; i &lt; p; i++)
+            if (!Character.isUpperCase(t.charAt(i))) return false;
+        String num = t.substring(p + 1);
+        if (num.length() != 3) return false;
+        for (int i = 0; i &lt; 3; i++)
+            if (!Character.isDigit(num.charAt(i))) return false;
+        return true;
+    }
+
+    String number(String t) {                  // the 3-digit part of a tag
+        return t.substring(t.indexOf(&#x27;-&#x27;) + 1);
+    }
+
+    void analyse() {
+        int validCount = 0;
+        for (int i = 0; i &lt; n; i++) {          // (a) validate tags
+            ok[i] = isValid(tag[i]);
+            System.out.println((ok[i] ? &quot;Valid Tag: &quot; : &quot;Invalid Tag: &quot;) + tag[i]);
+            if (ok[i]) validCount++;
+        }
+
+        boolean done[] = new boolean[n];
+        boolean found = false;
+        for (int i = 0; i &lt; n; i++) {          // (b) find teams of exactly two
+            if (!ok[i] || done[i]) continue;
+            int cnt = 1, mate = -1;
+            for (int j = i + 1; j &lt; n; j++) {
+                if (ok[j] &amp;&amp; number(tag[i]).equals(number(tag[j]))) {
+                    cnt++;
+                    mate = j;
+                    done[j] = true;
+                }
+            }
+            if (cnt == 2) {
+                found = true;
+                System.out.println(&quot;TEAMS : &quot; + tag[i] + &quot;, &quot; + tag[mate]);
+                System.out.println(&quot;Combined Score: &quot; + (score[i] + score[mate]));
+            }
+        }
+        if (!found) System.out.println(&quot;TEAMS: NO COMPLETE TEAMS FOUND.&quot;);
+
+        if (validCount == 0) {                 // (c) top scorer
+            System.out.println(&quot;NO VALID TAGS FOUND&quot;);
+            return;
+        }
+        int max = Integer.MIN_VALUE;
+        for (int i = 0; i &lt; n; i++)
+            if (ok[i] &amp;&amp; score[i] &gt; max) max = score[i];
+        for (int i = 0; i &lt; n; i++)
+            if (ok[i] &amp;&amp; score[i] == max)
+                System.out.println(&quot;TOP SCORER: &quot; + tag[i] + &quot; - &quot; + score[i]);
+    }
+
+    public static void main(String[] args) {
+        PlayerAnalyzer ob = new PlayerAnalyzer();
+        ob.accept();
+        ob.analyse();
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

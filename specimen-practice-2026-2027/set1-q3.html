@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 1 Q3 - Delivery Zone Orders</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 1 &middot; Question 3</p><h1>Delivery Zone Orders</h1>
+<h2>Question</h2><div class="q"><p>A food-delivery kitchen records orders from delivery zones (rows, 2 &le; Z &le; 5) over consecutive days (columns, 5 &le; D &le; 15). Store the order counts and:</p>
+<ul><li><b>Highest Total Orders:</b> display the zone with the highest total over all days, with its total.</li>
+<li><b>High Demand Days:</b> for each zone, display the days on which orders are above that zone's average.</li>
+<li><b>Increase in Orders:</b> for each zone, display the days on which orders are higher than the previous day.</li></ul>
+<p>Invalid zones &rarr; <code>INVALID ZONE</code>; invalid days &rarr; <code>INVALID DAYS</code>. If a zone has no such days, display <code>None</code>.</p>
+<p><b>Example 1:</b> 3 zones, 6 days: (4 6 3 7 5 2), (2 3 5 4 6 5), (5 4 6 3 2 4). Zone 1 high-demand days: Day 2, Day 4; increases: Day 2, Day 4.</p>
+<p class="note">Note: in the paper's Example 1, the zone totals are 27, 25 and 24, so the program prints <b>Zone 1 : 27 orders</b>. The printed sample (&ldquo;Zone 2 : 25&rdquo;) appears to be a typing error in the specimen paper.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept <code>z</code>. If <code>z &lt; 2</code> or <code>z &gt; 5</code>, print INVALID ZONE and stop.</li><li>Accept <code>d</code>. If <code>d &lt; 5</code> or <code>d &gt; 15</code>, print INVALID DAYS and stop.</li><li>Read the <code>z x d</code> matrix <code>a[][]</code>.</li><li>Compute <code>total[i]</code>, the row sum of every zone.</li><li>Find the zone with the largest total (first zone in case of a tie) and print it.</li><li>For each zone, compute <code>avg = total / d</code>; collect every day <code>j</code> with <code>a[i][j] &gt; avg</code>; print the days or None.</li><li>For each zone, collect every day <code>j &gt;= 1</code> with <code>a[i][j] &gt; a[i][j-1]</code>; print the days or None.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>z</code></td><td>int</td><td>Number of zones (rows)</td></tr><tr><td><code>d</code></td><td>int</td><td>Number of days (columns)</td></tr><tr><td><code>a[][]</code></td><td>int</td><td>Order count for each zone and day</td></tr><tr><td><code>total[]</code></td><td>int</td><td>Total orders of each zone</td></tr><tr><td><code>best</code></td><td>int</td><td>Index of the zone with the highest total</td></tr><tr><td><code>avg</code></td><td>double</td><td>Average daily orders of a zone</td></tr><tr><td><code>s</code></td><td>String</td><td>Text list of days built for output</td></tr><tr><td><code>i, j</code></td><td>int</td><td>Loop variables for zone and day</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class DeliveryOrders {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Number of zones: &quot;);
+        int z = sc.nextInt();
+        if (z &lt; 2 || z &gt; 5) {
+            System.out.println(&quot;INVALID ZONE&quot;);
+            return;
+        }
+        System.out.print(&quot;Number of days: &quot;);
+        int d = sc.nextInt();
+        if (d &lt; 5 || d &gt; 15) {
+            System.out.println(&quot;INVALID DAYS&quot;);
+            return;
+        }
+        int a[][] = new int[z][d];
+        int total[] = new int[z];
+        for (int i = 0; i &lt; z; i++)
+            for (int j = 0; j &lt; d; j++) {
+                a[i][j] = sc.nextInt();
+                total[i] += a[i][j];           // row total
+            }
+
+        // zone with the highest total (strict &gt; keeps the first zone on a tie)
+        int best = 0;
+        for (int i = 1; i &lt; z; i++)
+            if (total[i] &gt; total[best]) best = i;
+        System.out.println(&quot;Highest Total Orders :&quot;);
+        System.out.println(&quot;   Zone &quot; + (best + 1) + &quot; : &quot; + total[best] + &quot; orders&quot;);
+
+        // days above the zone&#x27;s average
+        System.out.println(&quot;High Demand Days:&quot;);
+        for (int i = 0; i &lt; z; i++) {
+            double avg = (double) total[i] / d;
+            String s = &quot;&quot;;
+            for (int j = 0; j &lt; d; j++)
+                if (a[i][j] &gt; avg)
+                    s += (s.equals(&quot;&quot;) ? &quot;&quot; : &quot;, &quot;) + &quot;Day &quot; + (j + 1);
+            if (s.equals(&quot;&quot;)) s = &quot;None&quot;;
+            System.out.println(&quot;   Zone &quot; + (i + 1) + &quot; : &quot; + s);
+        }
+
+        // days where orders rose compared with the previous day
+        System.out.println(&quot;Increase in Orders:&quot;);
+        for (int i = 0; i &lt; z; i++) {
+            String s = &quot;&quot;;
+            for (int j = 1; j &lt; d; j++)
+                if (a[i][j] &gt; a[i][j - 1])
+                    s += (s.equals(&quot;&quot;) ? &quot;&quot; : &quot;, &quot;) + &quot;Day &quot; + (j + 1);
+            if (s.equals(&quot;&quot;)) s = &quot;None&quot;;
+            System.out.println(&quot;   Zone &quot; + (i + 1) + &quot; : &quot; + s);
+        }
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

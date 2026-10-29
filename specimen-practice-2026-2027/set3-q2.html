@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 3 Q2 - ImageEditor</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 3 &middot; Question 2</p><h1>ImageEditor</h1>
+<h2>Question</h2><div class="q"><p>A grayscale image has pixel values from 0 to 255. Design a class <b>ImageEditor</b> to accept an image of size rows &times; cols (3 &le; rows, cols &le; 6), else <code>INVALID INPUT</code>.</p>
+<ol type="a"><li><b>Brighten:</b> accept a brightness value b and add it to every pixel; a result above 255 is stored as 255. Store the brightened image separately and display both images.</li>
+<li><b>Bright spot:</b> a pixel greater than all its immediate neighbours (above, below, left, right). A missing boundary neighbour counts as 0. Display the position and value of every bright spot.</li></ol>
+<p><b>Example 1:</b> 4&times;3 image (250 5 3 / 6 4 7 / 1 9 5 / 4 2 240), b = 20 &rarr; brightened: 255 25 23 / 26 24 27 / 21 29 25 / 24 22 255; bright spots: (1,1)=250, (2,3)=7, (3,2)=9, (4,3)=240.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept <code>r</code> and <code>c</code>. If either is below 3 or above 6, print INVALID INPUT and stop.</li><li>Read the image into <code>img[][]</code> and the brightness value <code>b</code>.</li><li>For every pixel, <code>bright[i][j] = img[i][j] + b</code>; if it exceeds 255 store 255.</li><li>Print the original and the brightened image.</li><li>For every pixel find the four neighbours; use 0 for any neighbour outside the array.</li><li>If the pixel is greater than all four neighbours, print its row, column and value (1-based).</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>r, c</code></td><td>int</td><td>Number of rows and columns</td></tr><tr><td><code>img[][]</code></td><td>int</td><td>Original image</td></tr><tr><td><code>bright[][]</code></td><td>int</td><td>Brightened image</td></tr><tr><td><code>b</code></td><td>int</td><td>Brightness value to add</td></tr><tr><td><code>up, down, left, right</code></td><td>int</td><td>Neighbour values (0 at the boundary)</td></tr><tr><td><code>v</code></td><td>int</td><td>Value of the pixel being tested</td></tr><tr><td><code>i, j</code></td><td>int</td><td>Row and column loop variables</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class ImageEditor {
+    int r, c, img[][], bright[][];
+
+    void accept() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Rows: &quot;);
+        r = sc.nextInt();
+        System.out.print(&quot;Columns: &quot;);
+        c = sc.nextInt();
+        if (r &lt; 3 || r &gt; 6 || c &lt; 3 || c &gt; 6) {
+            System.out.println(&quot;INVALID INPUT&quot;);
+            System.exit(0);
+        }
+        img = new int[r][c];
+        bright = new int[r][c];
+        System.out.println(&quot;Enter the pixel values:&quot;);
+        for (int i = 0; i &lt; r; i++)
+            for (int j = 0; j &lt; c; j++)
+                img[i][j] = sc.nextInt();
+    }
+
+    void brighten(int b) {
+        for (int i = 0; i &lt; r; i++)
+            for (int j = 0; j &lt; c; j++) {
+                bright[i][j] = img[i][j] + b;
+                if (bright[i][j] &gt; 255) bright[i][j] = 255;   // pixel limit
+            }
+    }
+
+    void show(int a[][], String title) {
+        System.out.println(title);
+        for (int i = 0; i &lt; r; i++) {
+            for (int j = 0; j &lt; c; j++)
+                System.out.print(a[i][j] + &quot;\t&quot;);
+            System.out.println();
+        }
+    }
+
+    void brightSpots() {
+        System.out.println(&quot;Bright Spots&quot;);
+        for (int i = 0; i &lt; r; i++)
+            for (int j = 0; j &lt; c; j++) {
+                int v = img[i][j];
+                // a missing neighbour outside the image is taken as 0
+                int up    = (i &gt; 0)     ? img[i - 1][j] : 0;
+                int down  = (i &lt; r - 1) ? img[i + 1][j] : 0;
+                int left  = (j &gt; 0)     ? img[i][j - 1] : 0;
+                int right = (j &lt; c - 1) ? img[i][j + 1] : 0;
+                if (v &gt; up &amp;&amp; v &gt; down &amp;&amp; v &gt; left &amp;&amp; v &gt; right)
+                    System.out.println(&quot;Row &quot; + (i + 1) + &quot;, Column &quot; + (j + 1) + &quot;, Value = &quot; + v);
+            }
+    }
+
+    public static void main(String[] args) {
+        ImageEditor ob = new ImageEditor();
+        ob.accept();
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Brightness value: &quot;);
+        int b = sc.nextInt();
+        ob.brighten(b);
+        ob.show(ob.img, &quot;Original Image:&quot;);
+        ob.show(ob.bright, &quot;Brightened Image:&quot;);
+        ob.brightSpots();
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

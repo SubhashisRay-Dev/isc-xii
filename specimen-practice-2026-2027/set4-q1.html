@@ -1,0 +1,66 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 4 Q1 - LocalMinimum</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 4 &middot; Question 1</p><h1>LocalMinimum</h1>
+<h2>Question</h2><div class="q"><p>Each element of a matrix is the elevation of a platform. A <b>Local Minimum Cell</b> is an <i>interior</i> cell whose elevation is strictly lower than its four neighbours (up, down, left, right). Declare a matrix H[ ][ ] of order M &times; N where 4 &le; M, N &le; 9 (check validity, else <code>INVALID INPUT</code>), accept the heights and:</p>
+<ol type="a"><li>Display the matrix.</li><li>Display all local minimum cells and their positions.</li><li>Display the smallest local minimum cell (LMC).</li></ol>
+<p><b>Example 1:</b> M=4, N=4, values 8796 6185 9728 5679 &rarr; 1 AT (2,2); 2 AT (3,3); SMALLEST LMC = 1.<br><b>Example 3:</b> 1234 5678 9876 5432 &rarr; NO LOCAL MINIMUM CELL.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept <code>m</code> and <code>n</code>. If either is below 4 or above 9, print INVALID INPUT and stop.</li><li>Read the <code>m x n</code> matrix <code>h[][]</code> and display it.</li><li>Set <code>small</code> to a very large value and <code>found = false</code>.</li><li>For <code>i</code> from 1 to m-2 and <code>j</code> from 1 to n-2 (interior cells only): if <code>h[i][j]</code> is less than all four neighbours, print it with its 1-based position, set <code>found = true</code> and update <code>small</code> if it is smaller.</li><li>If <code>found</code> is false print NO LOCAL MINIMUM CELL; otherwise print SMALLEST LMC = small.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>m, n</code></td><td>int</td><td>Number of rows and columns</td></tr><tr><td><code>h[][]</code></td><td>int</td><td>Matrix of elevations</td></tr><tr><td><code>small</code></td><td>int</td><td>Smallest local minimum found so far</td></tr><tr><td><code>found</code></td><td>boolean</td><td>true if at least one local minimum exists</td></tr><tr><td><code>v</code></td><td>int</td><td>Value of the cell being tested</td></tr><tr><td><code>i, j</code></td><td>int</td><td>Row and column loop variables</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class LocalMinimum {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;M = &quot;);
+        int m = sc.nextInt();
+        System.out.print(&quot;N = &quot;);
+        int n = sc.nextInt();
+        if (m &lt; 4 || m &gt; 9 || n &lt; 4 || n &gt; 9) {
+            System.out.println(&quot;INVALID INPUT&quot;);
+            return;
+        }
+
+        int h[][] = new int[m][n];
+        System.out.println(&quot;Enter the numbers:&quot;);
+        for (int i = 0; i &lt; m; i++)
+            for (int j = 0; j &lt; n; j++)
+                h[i][j] = sc.nextInt();
+
+        System.out.println(&quot;THE MATRIX IS:&quot;);
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++)
+                System.out.print(h[i][j] + &quot; &quot;);
+            System.out.println();
+        }
+
+        int small = Integer.MAX_VALUE;
+        boolean found = false;
+        System.out.println(&quot;LOCAL MINIMUM CELL&quot;);
+        // only interior cells have all four neighbours
+        for (int i = 1; i &lt; m - 1; i++)
+            for (int j = 1; j &lt; n - 1; j++) {
+                int v = h[i][j];
+                if (v &lt; h[i - 1][j] &amp;&amp; v &lt; h[i + 1][j] &amp;&amp; v &lt; h[i][j - 1] &amp;&amp; v &lt; h[i][j + 1]) {
+                    System.out.println(v + &quot; AT (&quot; + (i + 1) + &quot;,&quot; + (j + 1) + &quot;)&quot;);  // 1-based position
+                    found = true;
+                    if (v &lt; small) small = v;       // track the smallest LMC
+                }
+            }
+
+        if (!found) System.out.println(&quot;NO LOCAL MINIMUM CELL&quot;);
+        else        System.out.println(&quot;SMALLEST LMC = &quot; + small);
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

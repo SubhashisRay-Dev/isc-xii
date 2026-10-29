@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 1 Q1 - AccountVerifier</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 1 &middot; Question 1</p><h1>AccountVerifier</h1>
+<h2>Question</h2><div class="q"><p>A bank performs a few checks on an account number before accepting it. Design a class <b>AccountVerifier</b> to accept one 10-digit account number and:</p>
+<ul><li>Check that it has exactly 10 digits. If not, display <code>INVALID FORMAT</code> and stop.</li>
+<li>Starting from the right, double every second digit and leave the others unchanged. If a doubled value is greater than 9, subtract 9 from it. Add the resulting digits. If the total is divisible by 10, display <i>Checksum Valid</i>; otherwise <i>Checksum Invalid</i>.</li>
+<li>Add the original digits repeatedly until a single digit remains (the <b>Digital Root</b>). Display <i>Root: Odd</i> or <i>Root: Even</i>.</li></ul>
+<p><b>Example 1:</b> 1000000016 &rarr; Checksum Valid, Digital Root 8 (Root Even)<br><b>Example 2:</b> 4388576018 &rarr; Checksum Invalid (total 47), Digital Root 5 (Root Odd)<br><b>Example 3:</b> 123456789 &rarr; INVALID FORMAT</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept the account number as a String <code>acc</code>.</li><li>If length of <code>acc</code> is not 10 or any character is not a digit, print INVALID FORMAT and stop.</li><li>Set <code>sum = 0</code>, <code>orig = 0</code>.</li><li>Repeat for <code>i</code> from 9 down to 0 (right to left): extract digit <code>d</code>; add <code>d</code> to <code>orig</code>.</li><li>If <code>(9 - i)</code> is odd (every second digit from the right): <code>d = d * 2</code>; if <code>d &gt; 9</code>, <code>d = d - 9</code>.</li><li>Add <code>d</code> to <code>sum</code>.</li><li>If <code>sum % 10 == 0</code> print Checksum Valid, otherwise Checksum Invalid.</li><li>While <code>orig &gt; 9</code>: replace <code>orig</code> by the sum of its digits.</li><li>If <code>orig</code> is even print Root Even, otherwise Root Odd.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>acc</code></td><td>String</td><td>Account number entered by the user</td></tr><tr><td><code>sum</code></td><td>int</td><td>Checksum total after doubling every second digit</td></tr><tr><td><code>orig</code></td><td>int</td><td>Sum of original digits; reduced to the digital root</td></tr><tr><td><code>i</code></td><td>int</td><td>Loop index (position in the string)</td></tr><tr><td><code>d</code></td><td>int</td><td>Current digit</td></tr><tr><td><code>t</code></td><td>int</td><td>Temporary sum while reducing to a single digit</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class AccountVerifier {
+    String acc;                              // account number
+
+    void accept() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Account Number: &quot;);
+        acc = sc.next();
+    }
+
+    // true only if the number has exactly 10 characters and all are digits
+    boolean isValidFormat() {
+        if (acc.length() != 10) return false;
+        for (int i = 0; i &lt; 10; i++)
+            if (!Character.isDigit(acc.charAt(i))) return false;
+        return true;
+    }
+
+    void process() {
+        if (!isValidFormat()) {
+            System.out.println(&quot;INVALID FORMAT&quot;);
+            return;
+        }
+        int sum = 0, orig = 0;
+        for (int i = 9; i &gt;= 0; i--) {       // scan from the right
+            int d = acc.charAt(i) - &#x27;0&#x27;;     // character to digit
+            orig += d;                       // sum of original digits
+            if ((9 - i) % 2 == 1) {          // every second digit from the right
+                d = d * 2;
+                if (d &gt; 9) d = d - 9;
+            }
+            sum += d;
+        }
+        System.out.println(&quot;Account Number: &quot; + acc);
+        System.out.println(&quot;Checksum    : &quot; + (sum % 10 == 0 ? &quot;Valid&quot; : &quot;Invalid&quot;));
+
+        // digital root: keep adding digits until one digit remains
+        while (orig &gt; 9) {
+            int t = 0;
+            while (orig &gt; 0) {
+                t += orig % 10;
+                orig /= 10;
+            }
+            orig = t;
+        }
+        System.out.println(&quot;Digital Root: &quot; + orig + (orig % 2 == 0 ? &quot; (Root Even)&quot; : &quot; (Root Odd)&quot;));
+    }
+
+    public static void main(String[] args) {
+        AccountVerifier ob = new AccountVerifier();
+        ob.accept();
+        ob.process();
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

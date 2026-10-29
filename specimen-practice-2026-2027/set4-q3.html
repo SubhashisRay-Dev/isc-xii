@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 4 Q3 - SentenceDate</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 4 &middot; Question 3</p><h1>SentenceDate</h1>
+<h2>Question</h2><div class="q"><p>Accept (a) a sentence terminated by <code>.</code>, <code>?</code> or <code>!</code> with words separated by a single blank space, and (b) a date in the format DD/MM/YYYY. Then:</p>
+<ol type="a"><li>Validate the date and the sentence; display an appropriate error message if invalid.</li>
+<li>Count and display the total number of vowels V in the sentence.</li>
+<li>Add V days to the given date and display the future date.</li>
+<li>Sort the words in ascending order of length (equal lengths keep their original order) and display them.</li></ol>
+<p><b>Example 1:</b> The sun is bright today. / 20/01/2024 &rarr; NUMBER OF VOWELS = 6; FUTURE DATE (AFTER 6 DAYS): 26/01/2024; SORTED WORDS BY LENGTH: is The sun today bright.<br><b>Example 3:</b> date 31/04/2024 &rarr; INVALID DATE.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept the sentence <code>sen</code> and the date <code>dt</code>.</li><li>Check the sentence ends with '.', '?' or '!'; otherwise print INVALID SENTENCE and stop.</li><li>Split <code>dt</code> at '/', convert to <code>d, m, y</code> and check the date using days-in-month and the leap year rule; if invalid print INVALID DATE and stop.</li><li>Count the vowels (a, e, i, o, u in either case) in <code>sen</code> into <code>v</code>; print it.</li><li>Repeat <code>v</code> times: <code>d = d + 1</code>; if <code>d</code> exceeds the days in month <code>m</code>, set <code>d = 1</code>, <code>m = m + 1</code>; if <code>m &gt; 12</code>, set <code>m = 1</code>, <code>y = y + 1</code>.</li><li>Print the future date as DD/MM/YYYY.</li><li>Remove the last character of the sentence and split it into words.</li><li>Sort the words by length using insertion sort, moving a word only past strictly longer words so equal lengths stay in order.</li><li>Print the sorted words.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>sen</code></td><td>String</td><td>Sentence entered</td></tr><tr><td><code>dt</code></td><td>String</td><td>Date entered as DD/MM/YYYY</td></tr><tr><td><code>d, m, y</code></td><td>int</td><td>Day, month and year</td></tr><tr><td><code>v</code></td><td>int</td><td>Number of vowels in the sentence</td></tr><tr><td><code>w[]</code></td><td>String</td><td>Words of the sentence</td></tr><tr><td><code>key</code></td><td>String</td><td>Word being inserted during sorting</td></tr><tr><td><code>i, j</code></td><td>int</td><td>Loop variables</td></tr><tr><td><code>ch</code></td><td>char</td><td>Character being examined</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class SentenceDate {
+    static boolean isLeap(int y) {
+        return (y % 4 == 0 &amp;&amp; y % 100 != 0) || (y % 400 == 0);
+    }
+
+    static int daysIn(int m, int y) {         // number of days in month m of year y
+        int dm[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        if (isLeap(y)) dm[1] = 29;
+        return dm[m - 1];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Sentence: &quot;);
+        String sen = sc.nextLine().trim();
+        System.out.print(&quot;Date: &quot;);
+        String dt = sc.nextLine().trim();
+
+        // (a) validate the sentence
+        int len = sen.length();
+        char last = (len &gt; 0) ? sen.charAt(len - 1) : &#x27; &#x27;;
+        if (last != &#x27;.&#x27; &amp;&amp; last != &#x27;?&#x27; &amp;&amp; last != &#x27;!&#x27;) {
+            System.out.println(&quot;INVALID SENTENCE&quot;);
+            return;
+        }
+
+        // (a) validate the date
+        String p[] = dt.split(&quot;/&quot;);
+        int d = 0, m = 0, y = 0;
+        boolean ok = (p.length == 3);
+        if (ok) {
+            try {
+                d = Integer.parseInt(p[0]);
+                m = Integer.parseInt(p[1]);
+                y = Integer.parseInt(p[2]);
+            } catch (NumberFormatException e) {
+                ok = false;
+            }
+        }
+        if (!ok || m &lt; 1 || m &gt; 12 || y &lt; 1 || d &lt; 1 || d &gt; daysIn(m, y)) {
+            System.out.println(&quot;INVALID DATE&quot;);
+            return;
+        }
+
+        // (b) count vowels
+        int v = 0;
+        for (int i = 0; i &lt; len; i++) {
+            char ch = sen.charAt(i);
+            if (&quot;aeiouAEIOU&quot;.indexOf(ch) != -1) v++;
+        }
+        System.out.println(&quot;NUMBER OF VOWELS = &quot; + v);
+
+        // (c) add v days, one day at a time
+        for (int i = 0; i &lt; v; i++) {
+            d++;
+            if (d &gt; daysIn(m, y)) {           // move to the next month
+                d = 1;
+                m++;
+                if (m &gt; 12) {                 // move to the next year
+                    m = 1;
+                    y++;
+                }
+            }
+        }
+        System.out.println(&quot;FUTURE DATE (AFTER &quot; + v + &quot; DAYS): &quot;
+                + String.format(&quot;%02d/%02d/%04d&quot;, d, m, y));
+
+        // (d) insertion sort of words by length (stable)
+        String w[] = sen.substring(0, len - 1).split(&quot; &quot;);
+        for (int i = 1; i &lt; w.length; i++) {
+            String key = w[i];
+            int j = i - 1;
+            while (j &gt;= 0 &amp;&amp; w[j].length() &gt; key.length()) {   // strict &gt; keeps equal lengths in order
+                w[j + 1] = w[j];
+                j--;
+            }
+            w[j + 1] = key;
+        }
+
+        // (e) display
+        System.out.println(&quot;SORTED WORDS BY LENGTH:&quot;);
+        for (int i = 0; i &lt; w.length; i++)
+            System.out.print(w[i] + &quot; &quot;);
+        System.out.println();
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

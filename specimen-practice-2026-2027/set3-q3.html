@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 3 Q3 - TicketDateAnalyzer</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 3 &middot; Question 3</p><h1>TicketDateAnalyzer</h1>
+<h2>Question</h2><div class="q"><p>An airline records three dates for a passenger: Booking, Travel and Return. Each date is entered as day, month, year. Assume all dates are valid, in the same year, and the year is between 2024 and 2030. Design a class <b>TicketDateAnalyzer</b>:</p>
+<ol type="a"><li>Find and display the day number of the year for each date (15 February = Day 46).</li>
+<li>Travel date must be after booking, else display &ldquo;Invalid Booking&rdquo; and stop. Return date must be after travel, else &ldquo;Invalid Return&rdquo; and stop.</li>
+<li>Booking Gap = days between booking and travel. Trip Duration = days between travel and return.</li>
+<li>If Booking Gap is at least twice the Trip Duration: &ldquo;Advance Saver&rdquo;. If Trip Duration is at least twice the Booking Gap: &ldquo;Long-Stay Premium&rdquo;. Otherwise &ldquo;Standard Fare&rdquo;.</li></ol>
+<p><b>Example 1:</b> 01 01 2026, 25 01 2026, 05 02 2026 &rarr; Day numbers 1, 25, 36; Booking Gap 24; Trip Duration 11; Advance Saver.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept day, month and year of the booking, travel and return dates.</li><li>For each date, compute the day number: add the days of all complete months before it (February has 29 days in a leap year) and the day of the month. Print the three day numbers.</li><li>If <code>tv &lt;= bk</code> print Invalid Booking and stop.</li><li>If <code>rt &lt;= tv</code> print Invalid Return and stop.</li><li><code>gap = tv - bk</code>; <code>trip = rt - tv</code>. Print both.</li><li>If <code>gap &gt;= 2*trip</code> print Advance Saver; else if <code>trip &gt;= 2*gap</code> print Long-Stay Premium; else Standard Fare.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>d[], m[], y[]</code></td><td>int</td><td>Day, month and year of the three dates (0 booking, 1 travel, 2 return)</td></tr><tr><td><code>dm[]</code></td><td>int</td><td>Days in each month (February adjusted for leap year)</td></tr><tr><td><code>bk, tv, rt</code></td><td>int</td><td>Day numbers of booking, travel and return</td></tr><tr><td><code>gap</code></td><td>int</td><td>Booking gap in days</td></tr><tr><td><code>trip</code></td><td>int</td><td>Trip duration in days</td></tr><tr><td><code>n</code></td><td>int</td><td>Running day count in dayNo()</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class TicketDateAnalyzer {
+    int d[] = new int[3], m[] = new int[3], y[] = new int[3];
+
+    boolean isLeap(int yr) {                 // leap year rule
+        return (yr % 4 == 0 &amp;&amp; yr % 100 != 0) || (yr % 400 == 0);
+    }
+
+    // day number of the year for date dd/mm/yy
+    int dayNo(int dd, int mm, int yy) {
+        int dm[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        if (isLeap(yy)) dm[1] = 29;
+        int n = dd;
+        for (int i = 0; i &lt; mm - 1; i++)     // add complete months before mm
+            n += dm[i];
+        return n;
+    }
+
+    void accept() {
+        Scanner sc = new Scanner(System.in);
+        String name[] = {&quot;Booking&quot;, &quot;Travel&quot;, &quot;Return&quot;};
+        for (int i = 0; i &lt; 3; i++) {
+            System.out.print(name[i] + &quot; Date (day month year): &quot;);
+            d[i] = sc.nextInt();
+            m[i] = sc.nextInt();
+            y[i] = sc.nextInt();
+        }
+    }
+
+    void analyse() {
+        int bk = dayNo(d[0], m[0], y[0]);
+        int tv = dayNo(d[1], m[1], y[1]);
+        int rt = dayNo(d[2], m[2], y[2]);
+        System.out.println(&quot;Booking Day Number: &quot; + bk);
+        System.out.println(&quot;Travel Day Number: &quot; + tv);
+        System.out.println(&quot;Return Day Number: &quot; + rt);
+
+        if (tv &lt;= bk) {                      // dates are in the same year, so day numbers can be compared
+            System.out.println(&quot;INVALID BOOKING&quot;);
+            return;
+        }
+        if (rt &lt;= tv) {
+            System.out.println(&quot;INVALID RETURN&quot;);
+            return;
+        }
+
+        int gap = tv - bk;
+        int trip = rt - tv;
+        System.out.println(&quot;Booking Gap: &quot; + gap + &quot; days&quot;);
+        System.out.println(&quot;Trip Duration: &quot; + trip + &quot; days&quot;);
+
+        if (gap &gt;= 2 * trip)      System.out.println(&quot;Fare Type: Advance Saver&quot;);
+        else if (trip &gt;= 2 * gap) System.out.println(&quot;Fare Type: Long-Stay Premium&quot;);
+        else                      System.out.println(&quot;Fare Type: Standard Fare&quot;);
+    }
+
+    public static void main(String[] args) {
+        TicketDateAnalyzer ob = new TicketDateAnalyzer();
+        ob.accept();
+        ob.analyse();
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

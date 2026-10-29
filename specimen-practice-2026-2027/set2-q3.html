@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 2 Q3 - SecurityCode</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 2 &middot; Question 3</p><h1>SecurityCode</h1>
+<h2>Question</h2><div class="q"><p>A digital lock generates a security code: a positive integer of 5 to 10 digits. Display <code>INVALID INPUT</code> if it has fewer than 5 or more than 10 digits. Otherwise:</p>
+<ol type="a"><li>Display the first and last digit.</li><li>Calculate the sum of digits at even positions, at odd positions (counted from the left, starting at 1), and the product of all non-zero digits.</li>
+<li>Display the frequency of each digit (0-9) that occurs, and the most frequent digit (the smallest digit on a tie).</li>
+<li>Classify: STRONG CODE (all digits distinct), MODERATE CODE (only one digit repeated), WEAK CODE (two or more digits repeated).</li></ol>
+<p><b>Example 1:</b> 5834271 &rarr; First 5, Last 1, Odd-position sum 11, Even-position sum 19, Product 6720, Most frequent 1, STRONG CODE.<br><b>Example 3:</b> 75523755 &rarr; Product 183750, Most frequent 5, WEAK CODE.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept the code as a <code>long</code> <code>n</code>; convert it to a String <code>s</code>. If <code>n &lt;= 0</code> or the length is less than 5 or more than 10, print INVALID INPUT and stop.</li><li>Set <code>odd = even = 0</code>, <code>prod = 1</code>, and clear <code>freq[0..9]</code>.</li><li>For each position <code>i</code> (0 to len-1): digit <code>d = s.charAt(i)</code>; if <code>(i+1)</code> is odd add to <code>odd</code>, else to <code>even</code>; if <code>d != 0</code> multiply <code>prod</code> by <code>d</code>; increase <code>freq[d]</code>.</li><li>Print the first and last digits, <code>odd</code>, <code>even</code> and <code>prod</code>.</li><li>Print every digit whose frequency is above 0. Find the digit with the highest frequency (scan 0 to 9 using strict &gt; so the smallest wins a tie).</li><li>Count the digits with <code>freq &gt; 1</code> into <code>rep</code>.</li><li>If <code>rep == 0</code> STRONG; if <code>rep == 1</code> MODERATE; otherwise WEAK.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>n</code></td><td>long</td><td>Security code entered</td></tr><tr><td><code>s</code></td><td>String</td><td>Code converted to text</td></tr><tr><td><code>len</code></td><td>int</td><td>Number of digits</td></tr><tr><td><code>odd</code></td><td>int</td><td>Sum of digits at odd positions</td></tr><tr><td><code>even</code></td><td>int</td><td>Sum of digits at even positions</td></tr><tr><td><code>prod</code></td><td>long</td><td>Product of non-zero digits</td></tr><tr><td><code>freq[]</code></td><td>int</td><td>Frequency of digits 0 to 9</td></tr><tr><td><code>d</code></td><td>int</td><td>Current digit</td></tr><tr><td><code>maxD</code></td><td>int</td><td>Most frequent digit</td></tr><tr><td><code>rep</code></td><td>int</td><td>Number of digits that repeat</td></tr><tr><td><code>i</code></td><td>int</td><td>Loop variable</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class SecurityCode {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Enter the security code: &quot;);
+        long n = sc.nextLong();
+        String s = Long.toString(n);
+        int len = s.length();
+        if (n &lt;= 0 || len &lt; 5 || len &gt; 10) {
+            System.out.println(&quot;INVALID INPUT&quot;);
+            return;
+        }
+
+        int odd = 0, even = 0;
+        long prod = 1;                       // long: product can exceed int range
+        int freq[] = new int[10];            // freq[d] = how many times digit d occurs
+        for (int i = 0; i &lt; len; i++) {
+            int d = s.charAt(i) - &#x27;0&#x27;;
+            if ((i + 1) % 2 == 1) odd += d;  // positions are counted from 1
+            else                  even += d;
+            if (d != 0) prod *= d;           // ignore zeros in the product
+            freq[d]++;
+        }
+
+        System.out.println(&quot;FIRST DIGIT: &quot; + s.charAt(0));
+        System.out.println(&quot;LAST DIGIT: &quot; + s.charAt(len - 1));
+        System.out.println(&quot;SUM OF ODD POSITION DIGITS: &quot; + odd);
+        System.out.println(&quot;SUM OF EVEN POSITION DIGITS: &quot; + even);
+        System.out.println(&quot;PRODUCT OF NON-ZERO DIGITS: &quot; + prod);
+
+        System.out.println(&quot;DIGIT FREQUENCY:&quot;);
+        int maxD = 0, rep = 0;
+        for (int d = 0; d &lt;= 9; d++) {
+            if (freq[d] &gt; 0) System.out.println(d + &quot;: &quot; + freq[d]);
+            if (freq[d] &gt; freq[maxD]) maxD = d;   // strict &gt; keeps the smallest digit on a tie
+            if (freq[d] &gt; 1) rep++;               // number of repeated digits
+        }
+        System.out.println(&quot;MOST FREQUENT DIGIT: &quot; + maxD);
+
+        if (rep == 0)      System.out.println(&quot;CLASSIFICATION: STRONG CODE&quot;);
+        else if (rep == 1) System.out.println(&quot;CLASSIFICATION: MODERATE CODE&quot;);
+        else               System.out.println(&quot;CLASSIFICATION: WEAK CODE&quot;);
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

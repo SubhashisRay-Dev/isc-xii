@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 2 Q1 - PhishingDetector</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 2 &middot; Question 1</p><h1>PhishingDetector</h1>
+<h2>Question</h2><div class="q"><p>Accept a message terminated by <code>.</code>, <code>?</code> or <code>!</code> only. It may contain only alphabets and single blank spaces between words; the program is case-insensitive. Display <code>INVALID INPUT</code> if the terminator is wrong or any digit/special character is present.</p>
+<p>Phishing keywords: ACCOUNT, VERIFY, PASSWORD, LOGIN, BANK, URGENT.</p>
+<ol type="a"><li>Display all words in uppercase.</li><li>Display the total words and the number of phishing keywords.</li>
+<li>Classify: SAFE (0 keywords), SUSPICIOUS (1 or 2), PHISHING ALERT (more than 2).</li>
+<li>Encrypted message: reverse every phishing keyword, leave other words unchanged.</li></ol>
+<p><b>Example:</b> <i>Verify your account password immediately!</i> &rarr; TOTAL WORDS: 5, PHISHING WORDS: 3, PHISHING ALERT, <code>YFIREV YOUR TNUOCCA DROWSSAP IMMEDIATELY</code></p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept the message <code>msg</code> and trim it.</li><li>If the last character is not '.', '?' or '!', print INVALID INPUT and stop.</li><li>Remove the last character to get <code>body</code>. If any character of <code>body</code> is neither a letter nor a space, print INVALID INPUT and stop.</li><li>Convert <code>body</code> to uppercase and split it into words.</li><li>Print all words, and the total number of words.</li><li>For each word, if it matches a keyword, increase <code>ph</code>.</li><li>Print <code>ph</code>. If <code>ph == 0</code> print SAFE; else if <code>ph &lt;= 2</code> print SUSPICIOUS; else PHISHING ALERT.</li><li>Build the encrypted message: reverse each keyword, keep other words, join with single spaces; print it.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>key[]</code></td><td>String</td><td>The six phishing keywords</td></tr><tr><td><code>msg</code></td><td>String</td><td>Message entered by the user</td></tr><tr><td><code>last</code></td><td>char</td><td>Terminating character of the message</td></tr><tr><td><code>body</code></td><td>String</td><td>Message without the terminating character</td></tr><tr><td><code>st</code></td><td>StringTokenizer</td><td>Splits the message into words</td></tr><tr><td><code>words[]</code></td><td>String</td><td>Words of the message in uppercase</td></tr><tr><td><code>total</code></td><td>int</td><td>Total number of words</td></tr><tr><td><code>ph</code></td><td>int</td><td>Number of phishing keywords</td></tr><tr><td><code>enc</code></td><td>String</td><td>Encrypted message</td></tr><tr><td><code>i</code></td><td>int</td><td>Loop variable</td></tr><tr><td><code>c</code></td><td>char</td><td>Character being validated</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class PhishingDetector {
+    static String key[] = {&quot;ACCOUNT&quot;, &quot;VERIFY&quot;, &quot;PASSWORD&quot;, &quot;LOGIN&quot;, &quot;BANK&quot;, &quot;URGENT&quot;};
+
+    static boolean isKey(String w) {           // is w a phishing keyword?
+        for (String k : key)
+            if (k.equals(w)) return true;
+        return false;
+    }
+
+    static String reverse(String w) {
+        String r = &quot;&quot;;
+        for (int i = w.length() - 1; i &gt;= 0; i--)
+            r += w.charAt(i);
+        return r;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println(&quot;Enter the message:&quot;);
+        String msg = sc.nextLine().trim();
+        int len = msg.length();
+        char last = (len &gt; 0) ? msg.charAt(len - 1) : &#x27; &#x27;;
+        if (last != &#x27;.&#x27; &amp;&amp; last != &#x27;?&#x27; &amp;&amp; last != &#x27;!&#x27;) {   // terminator check
+            System.out.println(&quot;INVALID INPUT&quot;);
+            return;
+        }
+        String body = msg.substring(0, len - 1);
+        for (int i = 0; i &lt; body.length(); i++) {          // only letters and spaces allowed
+            char c = body.charAt(i);
+            if (!Character.isLetter(c) &amp;&amp; c != &#x27; &#x27;) {
+                System.out.println(&quot;INVALID INPUT&quot;);
+                return;
+            }
+        }
+
+        StringTokenizer st = new StringTokenizer(body.toUpperCase());
+        int total = st.countTokens();
+        String words[] = new String[total];
+        int ph = 0;
+        for (int i = 0; i &lt; total; i++) {
+            words[i] = st.nextToken();
+            if (isKey(words[i])) ph++;                     // count keywords
+        }
+
+        System.out.println(&quot;WORDS:&quot;);
+        String enc = &quot;&quot;;
+        for (int i = 0; i &lt; total; i++) {
+            System.out.print(words[i] + &quot; &quot;);
+            // reverse the keyword, keep other words unchanged
+            enc += (isKey(words[i]) ? reverse(words[i]) : words[i]) + &quot; &quot;;
+        }
+        System.out.println(&quot;\nTOTAL WORDS: &quot; + total);
+        System.out.println(&quot;PHISHING WORDS: &quot; + ph);
+        if (ph == 0)      System.out.println(&quot;CLASSIFICATION: SAFE&quot;);
+        else if (ph &lt;= 2) System.out.println(&quot;CLASSIFICATION: SUSPICIOUS&quot;);
+        else              System.out.println(&quot;CLASSIFICATION: PHISHING ALERT&quot;);
+        System.out.println(&quot;ENCRYPTED MESSAGE:&quot;);
+        System.out.println(enc.trim());
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

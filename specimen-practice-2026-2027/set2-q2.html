@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 2 Q2 - BasinMonitor</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 2 &middot; Question 2</p><h1>BasinMonitor</h1>
+<h2>Question</h2><div class="q"><p>A basin code has the format <b>RB</b> followed by exactly 4 digits (e.g. RB4319). Accept a basin code and rainfall readings for N days (5 &le; N &le; 20); otherwise show an error message.</p>
+<ol type="a"><li>Extract the basin number.</li><li>Calculate the sum of its digits.</li>
+<li>Store the readings; display the highest, lowest and average rainfall.</li>
+<li>Count the days on which rainfall exceeds 150 mm.</li>
+<li>If the average is greater than 150 mm display <code>FLOOD WARNING GENERATED</code>, else <code>NORMAL CONDITIONS</code>.</li></ol>
+<p><b>Example 1:</b> RB4319, N=6, 180 145 170 155 190 130 &rarr; Basin Number 4319, Digit Sum 17, Highest 190, Lowest 130, Average 161.67, Days exceeding 150 mm: 4, FLOOD WARNING GENERATED.<br><b>Errors:</b> R4319 &rarr; Invalid Basin Code; N=3 &rarr; Invalid Number of Days.</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept <code>code</code>. If its length is not 6, it does not start with "RB", or any of the last 4 characters is not a digit, print Invalid Basin Code and stop.</li><li>Accept <code>n</code>. If <code>n &lt; 5</code> or <code>n &gt; 20</code>, print Invalid Number of Days and stop.</li><li>Convert the last 4 characters to the integer <code>num</code>; find the digit sum <code>ds</code> by repeatedly taking <code>num % 10</code>.</li><li>Read the <code>n</code> readings; track <code>sum</code>, <code>hi</code> (largest), <code>lo</code> (smallest) and <code>cnt</code> (readings &gt; 150).</li><li>Compute <code>avg = sum / n</code>.</li><li>Print all results with the average to 2 decimal places.</li><li>If <code>avg &gt; 150</code> print FLOOD WARNING GENERATED, else NORMAL CONDITIONS.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>code</code></td><td>String</td><td>Basin code entered</td></tr><tr><td><code>ok</code></td><td>boolean</td><td>true if the code format is correct</td></tr><tr><td><code>n</code></td><td>int</td><td>Number of days</td></tr><tr><td><code>num</code></td><td>int</td><td>Basin number (4-digit part)</td></tr><tr><td><code>t</code></td><td>int</td><td>Copy of num used to extract digits</td></tr><tr><td><code>ds</code></td><td>int</td><td>Sum of digits of the basin number</td></tr><tr><td><code>r[]</code></td><td>int</td><td>Daily rainfall readings</td></tr><tr><td><code>sum</code></td><td>int</td><td>Total rainfall</td></tr><tr><td><code>hi, lo</code></td><td>int</td><td>Highest and lowest rainfall</td></tr><tr><td><code>cnt</code></td><td>int</td><td>Days with rainfall above 150 mm</td></tr><tr><td><code>avg</code></td><td>double</td><td>Average rainfall</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class BasinMonitor {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Basin Code: &quot;);
+        String code = sc.next();
+
+        // format check: RB + exactly 4 digits
+        boolean ok = code.length() == 6 &amp;&amp; code.startsWith(&quot;RB&quot;);
+        for (int i = 2; ok &amp;&amp; i &lt; 6; i++)
+            if (!Character.isDigit(code.charAt(i))) ok = false;
+        if (!ok) {
+            System.out.println(&quot;Invalid Basin Code&quot;);
+            return;
+        }
+
+        System.out.print(&quot;N: &quot;);
+        int n = sc.nextInt();
+        if (n &lt; 5 || n &gt; 20) {
+            System.out.println(&quot;Invalid Number of Days&quot;);
+            return;
+        }
+
+        int num = Integer.parseInt(code.substring(2));   // basin number
+        int ds = 0, t = num;
+        while (t &gt; 0) {                                  // digit sum
+            ds += t % 10;
+            t /= 10;
+        }
+
+        int r[] = new int[n];
+        int sum = 0, cnt = 0;
+        System.out.println(&quot;Enter &quot; + n + &quot; rainfall readings:&quot;);
+        for (int i = 0; i &lt; n; i++) r[i] = sc.nextInt();
+        int hi = r[0], lo = r[0];
+        for (int i = 0; i &lt; n; i++) {
+            sum += r[i];
+            if (r[i] &gt; hi) hi = r[i];                    // highest
+            if (r[i] &lt; lo) lo = r[i];                    // lowest
+            if (r[i] &gt; 150) cnt++;                       // days above 150 mm
+        }
+        double avg = (double) sum / n;                   // cast to avoid integer division
+
+        System.out.println(&quot;Basin Number: &quot; + num);
+        System.out.println(&quot;Digit Sum: &quot; + ds);
+        System.out.println(&quot;Highest Rainfall: &quot; + hi);
+        System.out.println(&quot;Lowest Rainfall: &quot; + lo);
+        System.out.printf(&quot;Average Rainfall: %.2f%n&quot;, avg);
+        System.out.println(&quot;Days exceeding 150 mm: &quot; + cnt);
+        System.out.println(avg &gt; 150 ? &quot;FLOOD WARNING GENERATED&quot; : &quot;NORMAL CONDITIONS&quot;);
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>

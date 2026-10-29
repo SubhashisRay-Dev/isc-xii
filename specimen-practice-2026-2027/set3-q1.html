@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set 3 Q1 - EnrolmentChecker</title><style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5d6575;--ac:#1f5c8b;--bd:#d9d6cc;--cb:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#161a22;--fg:#e6e8ee;--mut:#9aa3b5;--ac:#7db7e8;--bd:#2d3444;--cb:#1e2330}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:1.6rem;line-height:1.25;margin:.4em 0}h2{font-size:1.15rem;margin:1.8em 0 .5em;padding-bottom:.25em;border-bottom:1px solid var(--bd)}
+a{color:var(--ac)}.back{font-family:system-ui,sans-serif;font-size:.95rem}.meta{color:var(--mut);font-family:system-ui,sans-serif;font-size:.9rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-family:system-ui,sans-serif;font-size:.92rem}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--cb)}
+pre{background:var(--cb);border:1px solid var(--bd);padding:14px;overflow-x:auto;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;border-radius:6px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}.q{border-left:3px solid var(--ac);padding:2px 0 2px 14px}
+.set{margin:1.6em 0}.set li{margin:.5em 0}.set span{color:var(--mut);font-size:.92rem}
+.note{background:var(--cb);border:1px solid var(--bd);padding:8px 12px;border-radius:6px;font-size:.92rem}
+</style></head><body><main><p class="back"><a href="index.html">&larr; Back to all questions</a></p>
+<p class="meta">Sample Paper 3 &middot; Question 1</p><h1>EnrolmentChecker</h1>
+<h2>Question</h2><div class="q"><p>An enrolment code has the format: 2 uppercase letters + 4-digit year + 3-digit serial number (e.g. SC2026045). Stream letters: SC (Science), CM (Commerce), HM (Humanities). Year: 2024, 2025 or 2026. Serial: 001 to 999.</p>
+<p>Design a class to accept codes for 5 to 20 applicants (else <code>INVALID INPUT</code>) and:</p>
+<ol type="a"><li>Display ACCEPTED if valid; otherwise the reason: Incorrect length, Invalid stream, Invalid year or Invalid serial number.</li>
+<li>If only the stream letters are in lowercase (e.g. sc2026045) and the rest is valid, convert and display ACCEPTED AFTER AUTO-CORRECTION.</li>
+<li>Count accepted applicants per stream and display the stream(s) with the highest count (all of them on a tie).</li></ol>
+<p><b>Example 1:</b> SC2026045, CM2025012, sc2026075, AB2025015, HM2025000 &rarr; Accepted, Accepted, Accepted after auto-correction, Invalid stream, Invalid serial number; SC : 2, CM : 1, HM : 0; Highest Enrolment : SC</p></div>
+<h2>Algorithm</h2><ol><li>Start.</li><li>Accept <code>n</code>. If <code>n &lt; 5</code> or <code>n &gt; 20</code>, print INVALID INPUT and stop.</li><li>Accept <code>n</code> codes.</li><li>For each code run the checks in order: length must be 9; the first two letters (converted to uppercase) must be SC, CM or HM; characters 3 to 6 must be digits within 2024 to 2026; the last 3 must be digits within 1 to 999. Stop at the first failed check and report its reason.</li><li>If all checks pass, increase the count of that stream. Print Accepted, or Accepted after auto-correction if the stream letters were not already uppercase.</li><li>Print the count of each stream.</li><li>Find the largest count and print every stream having that count.</li><li>Stop.</li></ol>
+<h2>Variable description</h2><div class="tw"><table><tr><th>Variable</th><th>Data type</th><th>Description</th></tr><tr><td><code>n</code></td><td>int</td><td>Number of applicants</td></tr><tr><td><code>code[]</code></td><td>String</td><td>Enrolment codes</td></tr><tr><td><code>streams[]</code></td><td>String</td><td>Valid stream codes SC, CM, HM</td></tr><tr><td><code>cnt[]</code></td><td>int</td><td>Accepted applicants per stream</td></tr><tr><td><code>st, up</code></td><td>String</td><td>Stream letters as typed and in uppercase</td></tr><tr><td><code>k</code></td><td>int</td><td>Index of the stream in streams[]</td></tr><tr><td><code>yr, sr</code></td><td>String</td><td>Year part and serial part of the code</td></tr><tr><td><code>y, s</code></td><td>int</td><td>Year and serial as numbers</td></tr><tr><td><code>max</code></td><td>int</td><td>Highest stream count</td></tr></table></div>
+<h2>Program (Java)</h2><pre><code>import java.util.*;
+
+public class EnrolmentChecker {
+    int n;
+    String code[];
+    String streams[] = {&quot;SC&quot;, &quot;CM&quot;, &quot;HM&quot;};
+    int cnt[] = new int[3];                  // accepted count for each stream
+
+    void accept() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print(&quot;Number of applicants: &quot;);
+        n = sc.nextInt();
+        if (n &lt; 5 || n &gt; 20) {
+            System.out.println(&quot;INVALID INPUT&quot;);
+            System.exit(0);
+        }
+        code = new String[n];
+        System.out.println(&quot;Enter the codes:&quot;);
+        for (int i = 0; i &lt; n; i++) code[i] = sc.next();
+    }
+
+    boolean allDigits(String x) {            // true if every character is a digit
+        for (int i = 0; i &lt; x.length(); i++)
+            if (!Character.isDigit(x.charAt(i))) return false;
+        return true;
+    }
+
+    // returns the result text for one code and updates the stream count
+    String check(String c) {
+        if (c.length() != 9) return &quot;Incorrect length&quot;;
+
+        String st = c.substring(0, 2);       // stream letters as typed
+        String up = st.toUpperCase();        // auto-corrected form
+        int k = -1;
+        for (int i = 0; i &lt; 3; i++)
+            if (streams[i].equals(up)) k = i;
+        if (k == -1) return &quot;Invalid stream&quot;;
+
+        String yr = c.substring(2, 6);
+        if (!allDigits(yr)) return &quot;Invalid year&quot;;
+        int y = Integer.parseInt(yr);
+        if (y &lt; 2024 || y &gt; 2026) return &quot;Invalid year&quot;;
+
+        String sr = c.substring(6);
+        if (!allDigits(sr)) return &quot;Invalid serial number&quot;;
+        int s = Integer.parseInt(sr);
+        if (s &lt; 1 || s &gt; 999) return &quot;Invalid serial number&quot;;
+
+        cnt[k]++;                            // accepted: count it
+        return st.equals(up) ? &quot;Accepted&quot; : &quot;Accepted after auto-correction&quot;;
+    }
+
+    void report() {
+        for (int i = 0; i &lt; n; i++)
+            System.out.println(code[i] + &quot; : &quot; + check(code[i]));
+
+        System.out.println(&quot;Stream Report&quot;);
+        int max = 0;
+        for (int i = 0; i &lt; 3; i++) {
+            System.out.println(streams[i] + &quot; : &quot; + cnt[i]);
+            if (cnt[i] &gt; max) max = cnt[i];
+        }
+        if (max == 0) {
+            System.out.println(&quot;No accepted applicants&quot;);
+            return;
+        }
+        System.out.print(&quot;Highest Enrolment : &quot;);
+        for (int i = 0; i &lt; 3; i++)          // print all streams that tie for the highest
+            if (cnt[i] == max) System.out.print(streams[i] + &quot; &quot;);
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        EnrolmentChecker ob = new EnrolmentChecker();
+        ob.accept();
+        ob.report();
+    }
+}</code></pre>
+<p class="back"><a href="index.html">&larr; Back to all questions</a></p></main></body></html>
